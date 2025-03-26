@@ -26,7 +26,7 @@ SECRET_KEY = "django-insecure-fvala^m+8@qo*99f-865mkj%@^i2e*e_@87^&e8579sx6*e@o$
 DEBUG = True
 
 ALLOWED_HOSTS = ["*"]
-CSRF_TRUSTED_ORIGINS = ["*"]
+
 
 # Application definition
 
@@ -44,7 +44,7 @@ MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
-    "django.middleware.csrf.CsrfViewMiddleware",
+    #"django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
@@ -128,5 +128,5 @@ import os
 MEDIA_URL = "/temp/"
 MEDIA_ROOT = os.path.join(BASE_DIR, "temp")
 
-STATIC_URL = "/static/"
+#STATIC_URL = "/static/"
 STATICFILES_DIRS = [os.path.join(BASE_DIR, "static")]
