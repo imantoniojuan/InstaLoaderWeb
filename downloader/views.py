@@ -143,7 +143,7 @@ def download_posts_in_background(username):
         L.download_video_thumbnails = False
         L.post_metadata_txt_pattern = ""
 
-        L.dirname_pattern = f"/InstaLoaderWeb/{username}"
+        L.dirname_pattern = f"/download/{username}"
         L.download_profile(username)
         print("Download Completed.")
     except Exception as e:
