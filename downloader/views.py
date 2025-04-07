@@ -133,38 +133,6 @@ def reels(request):
 
     return render(request, "downloader/reels.html")
 
-def allreels(request):
-    if request.method == "POST":
-        username = str(request.POST["postURL"])
-        
-        if username != "":
-            try:
-                # Start the download in a new thread
-                download_thread = threading.Thread(
-                    target=download_reels_in_background, args=(username,)
-                )
-                download_thread.start()
-                
-                # Return a response immediately to the user
-                return render(
-                    request,
-                    "downloader/allreels.html",
-                    {
-                        "message": "Download started! This may take a while, Please do not close this window."
-                    },
-                )
-            except Exception as e:
-                error_message = str(e)
-                return render(
-                    request,
-                    "downloader/allreels.html",
-                    {"error": f"An error occurred: {error_message}"},
-                )
-    desktop_path = os.path.join(os.path.expanduser("~"), "Desktop")
-    print(f"{desktop_path=}")
-    return render(request, "downloader/allreels.html")
-
-
 def download_posts_in_background(username):
     try:
         desktop_path = os.path.join(os.path.expanduser("~"), "Desktop")
@@ -226,3 +194,34 @@ def allposts(request):
     desktop_path = os.path.join(os.path.expanduser("~"), "Desktop")
     print(f"{desktop_path=}")
     return render(request, "downloader/allposts.html")
+
+def allreels(request):
+    if request.method == "POST":
+        username = str(request.POST["postURL"])
+        
+        if username != "":
+            try:
+                # Start the download in a new thread
+                download_thread = threading.Thread(
+                    target=download_reels_in_background, args=(username,)
+                )
+                download_thread.start()
+                
+                # Return a response immediately to the user
+                return render(
+                    request,
+                    "downloader/allreels.html",
+                    {
+                        "message": "Download started! This may take a while, Please do not close this window."
+                    },
+                )
+            except Exception as e:
+                error_message = str(e)
+                return render(
+                    request,
+                    "downloader/allreels.html",
+                    {"error": f"An error occurred: {error_message}"},
+                )
+    desktop_path = os.path.join(os.path.expanduser("~"), "Desktop")
+    print(f"{desktop_path=}")
+    return render(request, "downloader/allreels.html")
