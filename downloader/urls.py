@@ -8,4 +8,5 @@ urlpatterns = [
     path("posts", views.posts, name="posts"),
     path("reels", views.reels, name="reels"),
     path("allposts", views.allposts, name="allposts"),
+    path("allreels", views.allreels, name="allreels"),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
