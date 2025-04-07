@@ -85,7 +85,7 @@ def reels(request):
                 print(f"{shortcode=}")
             else:
                 return render(
-                    request, "downloader/reels.html", {"error": "Invalid URL."}
+                    request, "downloader/posts.html", {"error": "Invalid URL."}
                 )
         if shortcode != "":
             try:
@@ -133,6 +133,37 @@ def reels(request):
 
     return render(request, "downloader/reels.html")
 
+def allreels(request):
+    if request.method == "POST":
+        username = str(request.POST["postURL"])
+        
+        if username != "":
+            try:
+                # Start the download in a new thread
+                download_thread = threading.Thread(
+                    target=download_reels_in_background, args=(username,)
+                )
+                download_thread.start()
+                
+                # Return a response immediately to the user
+                return render(
+                    request,
+                    "downloader/allreels.html",
+                    {
+                        "message": "Download started! This may take a while, Please do not close this window."
+                    },
+                )
+            except Exception as e:
+                error_message = str(e)
+                return render(
+                    request,
+                    "downloader/allreels.html",
+                    {"error": f"An error occurred: {error_message}"},
+                )
+    desktop_path = os.path.join(os.path.expanduser("~"), "Desktop")
+    print(f"{desktop_path=}")
+    return render(request, "downloader/allreels.html")
+
 
 def download_posts_in_background(username):
     try:
@@ -149,6 +180,21 @@ def download_posts_in_background(username):
     except Exception as e:
         print(f"An error occurred: {str(e)}")
 
+
+def download_reels_in_background(username):
+    try:
+        desktop_path = os.path.join(os.path.expanduser("~"), "Desktop")
+        
+        L = instaloader.Instaloader()
+        L.save_metadata = False
+        L.download_video_thumbnails = False
+        L.post_metadata_txt_pattern = ""
+        
+        L.dirname_pattern = f"/download/{username}"
+        L.download_reels(username)
+        print("Download Completed.")
+    except Exception as e:
+        print(f"An error occurred: {str(e)}")
 
 def allposts(request):
     if request.method == "POST":
