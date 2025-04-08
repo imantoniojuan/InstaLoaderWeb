@@ -58,6 +58,22 @@
             <p>Download all Reels of an Instagram Account.</p>
           </a>
         </div>
+        <div>
+          <form action="{% url 'login' %}" method="POST">
+            
+            {% if request.session.username == None %}
+              <label for="postURL">Enter Login Username and Password</label>
+              <input type="text" name="username" id="username" placeholder="Username" />
+              <input type="password" name="password" id="password" placeholder="Password" />
+              <button type="submit" id="login">Login</button>
+              <span class="loader" style="display: none"></span>
+            {% else %}
+              <button type="submit" id="logout">Logout</button>
+            {% endif %}
+            <h3>{{error}}</h3>
+            <h3 style="text-align: center">{{message}}</h3>
+          </form>
+        </div>
       </div>
     </section>
 
@@ -68,7 +84,7 @@
     </footer>
     <script>
       document
-        .getElementById("download")
+        .getElementById("login")
         .addEventListener("click", function () {
           document.querySelector(".loader").style.display = "block";
         });

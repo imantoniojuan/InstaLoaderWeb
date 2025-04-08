@@ -1,9 +1,9 @@
 body {
   background: linear-gradient(
     to bottom right,
-    rgb(255, 200, 47),
-    rgb(255, 37, 139),
-    rgb(175, 77, 255)
+    rgb(220, 220, 220),
+    rgb(150, 150, 150),
+    rgb(80, 80, 80)
   );
   color: white;
   margin: 0;
@@ -140,6 +140,22 @@ input[type="text"] {
 }
 
 input[type="text"]:focus {
+  border-color: #007bff;
+  outline: none;
+  box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+}
+
+input[type="password"] {
+  margin-bottom: 0.5rem;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+  transition: border-color 0.3s;
+  width: 90%;
+}
+
+input[type="password"]:focus {
   border-color: #007bff;
   outline: none;
   box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
