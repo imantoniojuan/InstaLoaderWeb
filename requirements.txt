@@ -6,5 +6,5 @@ idna==3.7
 requests==2.32.3
 sqlparse==0.5.0
 urllib3==2.2.1
-
-git+https://github.com/SamuMazzi/instaloader.git@9b3ccc2bb885c6c4914af85184a7a7cefbd995de
+instagrapi
+pillow
