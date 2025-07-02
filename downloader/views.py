@@ -13,10 +13,10 @@ SESSION_FILE="session.json"
 def download_file(url, filename, taken_at):
     if not url:
         print(f"⚠️ Skipping missing URL: {filename}")
-        return
+        return True  # keep going
     if os.path.exists(filename):
-        print(f"⏩ File already exists, skipping: {filename}")
-        return
+        print(f"⏩ File already exists, stopping: {filename}")
+        return False  # stop
     try:
         response = requests.get(url, stream=True)
         response.raise_for_status()
@@ -26,8 +26,10 @@ def download_file(url, filename, taken_at):
         timestamp = time.mktime(taken_at.timetuple())
         os.utime(filename, (timestamp, timestamp))
         print(f"✅ File downloaded: {filename}")
+        return True  # continue
     except Exception as e:
         print(f"❌ Error: {filename}: {e}")
+        return True  # continue despite error
         
 def index(request):
     try:
@@ -190,17 +192,18 @@ def download_posts_in_background(cl, username, save_location):
             try:
                 if post.media_type == 1:
                     filename = os.path.join(folder, f"{post.pk}_{post.taken_at.strftime('%Y%m%d')}.jpg")
-                    download_file(post.thumbnail_url, filename, post.taken_at)
+                    if not download_file(post.thumbnail_url, filename, post.taken_at):
+                        return  # stop all
                 elif post.media_type == 8 and hasattr(post, 'resources'):
                     for i, resource in enumerate(post.resources):
                         ext = "mp4" if resource.video_url else "jpg"
                         url = resource.video_url if ext == "mp4" else resource.thumbnail_url
                         filename = os.path.join(folder, f"{post.pk}_{i+1}_{post.taken_at.strftime('%Y%m%d')}.{ext}")
-                        download_file(url, filename, post.taken_at)
-                        
+                        if not download_file(url, filename, post.taken_at):
+                            return  # stop all
             except Exception as e:
                 print(f"Error processing post {post.pk}: {e}")
-        
+                
         stories = cl.user_stories(user_id)
         folder = os.path.join(save_location, username, "stories")
         os.makedirs(folder, exist_ok=True)
@@ -220,12 +223,15 @@ def download_posts_in_background(cl, username, save_location):
                 url = str(item.thumbnail_url if item.media_type == 1 else item.video_url)
                 ext = "jpg" if item.media_type == 1 else "mp4"
                 filename = os.path.join(folder, f"{item.pk}_{item.taken_at.strftime('%Y%m%d')}.{ext}")
-                download_file(url, filename, item.taken_at)
                 
-                thumb_filename = os.path.join(folder, f"{item.pk}_{item.taken_at.strftime('%Y%m%d')}_thumb.jpg")
+                if not download_file(url, filename, item.taken_at):
+                    return  # stop all
+                
                 if item.thumbnail_url and item.media_type != 1:
-                    download_file(item.thumbnail_url, thumb_filename, item.taken_at)
-
+                    thumb_filename = os.path.join(folder, f"{item.pk}_{item.taken_at.strftime('%Y%m%d')}_thumb.jpg")
+                    if not download_file(item.thumbnail_url, thumb_filename, item.taken_at):
+                        return  # stop all
+                    
     except Exception as e:
         print(f"Background download failed: {e}")
 
@@ -283,11 +289,17 @@ def download_reels_in_background(cl, username, save_location):
             try:
                 filename = os.path.join(folder, f"{reel.pk}_{reel.taken_at.strftime('%Y%m%d')}.mp4")
                 thumb_filename = os.path.join(folder, f"{reel.pk}_{reel.taken_at.strftime('%Y%m%d')}_thumb.jpg")
-                download_file(reel.video_url, filename, reel.taken_at)
+                
+                if not download_file(reel.video_url, filename, reel.taken_at):
+                    return  # stop all
+                
                 if reel.thumbnail_url:
-                    download_file(reel.thumbnail_url, thumb_filename, reel.taken_at)
+                    if not download_file(reel.thumbnail_url, thumb_filename, reel.taken_at):
+                        return  # stop all
+                    
             except Exception as e:
                 print(f"Error processing reel {reel.pk}: {e}")
+                
     except Exception as e:
         print(f"Background download failed: {e}")
 
@@ -341,6 +353,7 @@ def login(request):
         
         try:
             if os.path.exists(SESSION_FILE):
+                print("Trying Log In with Session")
                 cl.load_settings(SESSION_FILE)
                 cl.get_timeline_feed()
                 print("Logged In with Session")
@@ -374,4 +387,29 @@ def login(request):
                 {"error": f"An error occurred: {error_message}"},
             )
     
+    return render(request, "downloader/index.html")
+
+def clearsession(request):
+    if request.method == "POST":
+        
+        try:
+            if os.path.exists(SESSION_FILE):
+                os.remove(SESSION_FILE)
+                
+            return render(
+                request,
+                "downloader/index.html",
+                {
+                    "message": "Session file removed."
+                },
+            )
+        
+        except Exception as e:
+            error_message = str(e)
+            return render(
+                request,
+                "downloader/index.html",
+                {"error": f"An error occurred: {error_message}"},
+            )
+        
     return render(request, "downloader/index.html")

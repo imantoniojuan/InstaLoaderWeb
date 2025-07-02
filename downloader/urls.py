@@ -10,4 +10,5 @@ urlpatterns = [
     path("allposts", views.allposts, name="allposts"),
     path("allreels", views.allreels, name="allreels"),
     path("login", views.login, name="login"),
+    path("clearsession", views.clearsession, name="clearsession"),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
